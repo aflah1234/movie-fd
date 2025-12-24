@@ -1,0 +1,121 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+:root {
+  --color-primary: #dc2626; /* Cinema red */
+  --color-primaryHover: #b91c1c;
+  --color-secondary: #fbbf24; /* Gold accent */
+  --color-accent: #8b5cf6; /* Purple accent */
+}  
+
+/* Custom Cinema Theme */
+[data-theme="cinema"] {
+  --color-primary: #dc2626;
+  --color-primary-content: #ffffff;
+  --color-secondary: #fbbf24;
+  --color-secondary-content: #000000;
+  --color-accent: #8b5cf6;
+  --color-accent-content: #ffffff;
+  --color-neutral: #1f2937;
+  --color-neutral-content: #ffffff;
+  --color-base-100: #0f0f0f; /* Deep black background */
+  --color-base-200: #1a1a1a; /* Card backgrounds */
+  --color-base-300: #2d2d2d; /* Elevated surfaces */
+  --color-base-content: #ffffff;
+  --color-info: #3b82f6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+}
+
+html {
+  /* scroll-behavior: smooth; */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-base-100);
+}
+
+html::-webkit-scrollbar {
+  width: 0.4rem;
+}
+
+html::-webkit-scrollbar-track {
+  background: var(--color-base-100);
+}
+
+html::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 0.2rem;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primaryHover);
+}
+
+body {
+  scroll-behavior: smooth;
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+}
+
+/* Custom movie card hover effects */
+.movie-card {
+  transition: all 0.3s ease;
+  background: linear-gradient(145deg, #1a1a1a, #2d2d2d);
+  border: 1px solid rgba(220, 38, 38, 0.1);
+}
+
+.movie-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(220, 38, 38, 0.3);
+  border-color: rgba(220, 38, 38, 0.5);
+}
+
+/* Glowing button effect */
+.btn-primary {
+  background: linear-gradient(45deg, #dc2626, #b91c1c);
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Seat selection styling */
+.seat-available {
+  background: #374151;
+  border: 2px solid #6b7280;
+  transition: all 0.2s ease;
+}
+
+.seat-available:hover {
+  background: #4b5563;
+  border-color: #9ca3af;
+}
+
+.seat-selected {
+  background: linear-gradient(45deg, #dc2626, #b91c1c);
+  border: 2px solid #dc2626;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.5);
+}
+
+.seat-booked {
+  background: #6b7280;
+  border: 2px solid #4b5563;
+  cursor: not-allowed;
+}
+
+/* Loading animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(220, 38, 38, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.8);
+  }
+}
+
+.loading-glow {
+  animation: pulse-glow 2s infinite;
+}
+

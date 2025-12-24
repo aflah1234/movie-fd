@@ -1,0 +1,14 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Note: Set VITE_API_URL in Netlify dashboard environment variables
+# Don't hardcode URLs here - use Netlify's environment variables instead

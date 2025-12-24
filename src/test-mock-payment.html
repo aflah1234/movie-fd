@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Payment Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        .container {
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .log {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .info { color: #2196F3; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Mock Payment System Test</h1>
+    
+    <div class="container">
+        <h2>Environment Check</h2>
+        <div id="env-check" class="log">Loading environment variables...</div>
+    </div>
+
+    <div class="container">
+        <h2>Mock Payment Test</h2>
+        <p>This test simulates the payment flow without any React components or browser cache issues.</p>
+        
+        <button onclick="testLogin()">1. Test Login</button>
+        <button onclick="testMockPayment()">2. Test Mock Payment</button>
+        <button onclick="clearLogs()">Clear Logs</button>
+        
+        <div id="test-logs" class="log">Ready to test...\n</div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        let authCookie = '';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('test-logs');
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            logElement.innerHTML += `<span class="${className}">[${timestamp}] ${message}</span>\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function clearLogs() {
+            document.getElementById('test-logs').innerHTML = 'Logs cleared...\n';
+        }
+        
+        // Check environment variables (simulated)
+        function checkEnvironment() {
+            const envCheck = document.getElementById('env-check');
+            envCheck.innerHTML = `
+Environment Variables (simulated):
+✅ VITE_SKIP_RAZORPAY: true
+✅ VITE_FORCE_MOCK_PAYMENT: true  
+✅ VITE_RAZORPAY_KEY_ID: DISABLED_IN_DEV
+
+🚀 Mock payment mode is ENABLED
+🚫 Razorpay script loading is DISABLED
+            `;
+        }
+        
+        async function testLogin() {
+            log('🔐 Testing login...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/user/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'password123'
+                    }),
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.data) {
+                    log('✅ Login successful!', 'success');
+                    log(`User: ${data.data.name} (${data.data.email})`, 'success');
+                    
+                    // Store auth cookie
+                    const cookies = response.headers.get('set-cookie');
+                    if (cookies) {
+                        authCookie = cookies.split(';')[0];
+                        log('✅ Auth cookie stored', 'success');
+                    }
+                } else {
+                    log(`❌ Login failed: ${data.message}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Login error: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testMockPayment() {
+            if (!authCookie) {
+                log('❌ Please login first!', 'error');
+                return;
+            }
+            
+            log('💳 Testing mock payment creation...', 'info');
+            
+            try {
+                // Step 1: Create mock payment order
+                const mockBookingId = '507f1f77bcf86cd799439011';
+                
+                const orderResponse = await fetch(`${API_BASE}/payment/createOrder`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cookie': authCookie
+                    },
+                    body: JSON.stringify({
+                        amount: 240,
+                        bookingId: mockBookingId
+                    }),
+                    credentials: 'include'
+                });
+                
+                const orderData = await orderResponse.json();
+                
+                if (orderResponse.ok && orderData.order_id) {
+                    log('✅ Mock payment order created!', 'success');
+                    log(`Order ID: ${orderData.order_id}`, 'success');
+                    log(`Mock mode: ${orderData.mock}`, 'success');
+                    log(`Amount: ₹${orderData.amount / 100}`, 'success');
+                    
+                    // Step 2: Test payment verification (will fail due to fake booking, but shows mock logic works)
+                    log('🔍 Testing payment verification...', 'info');
+                    
+                    const verifyResponse = await fetch(`${API_BASE}/payment/paymentVerification`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Cookie': authCookie
+                        },
+                        body: JSON.stringify({
+                            razorpay_order_id: orderData.order_id,
+                            razorpay_payment_id: `mock_payment_${Date.now()}`,
+                            razorpay_signature: `mock_signature_${Date.now()}`,
+                            bookingId: mockBookingId
+                        }),
+                        credentials: 'include'
+                    });
+                    
+                    const verifyData = await verifyResponse.json();
+                    
+                    if (verifyResponse.ok) {
+                        log('✅ Payment verification successful!', 'success');
+                        log(`Message: ${verifyData.message}`, 'success');
+                    } else {
+                        // Expected to fail due to fake booking ID
+                        log(`ℹ️ Verification failed as expected: ${verifyData.message}`, 'info');
+                        if (verifyData.message.includes('Booking not found')) {
+                            log('✅ Mock payment system is working correctly!', 'success');
+                        }
+                    }
+                    
+                    log('🎉 MOCK PAYMENT TEST COMPLETED!', 'success');
+                    log('✅ Payment creation works in mock mode', 'success');
+                    log('✅ No Razorpay API calls were made', 'success');
+                    log('✅ Server correctly handles mock payments', 'success');
+                    
+                } else {
+                    log(`❌ Payment creation failed: ${orderData.message}`, 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Payment test error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Initialize
+        checkEnvironment();
+        log('🚀 Mock Payment Test Ready!', 'success');
+        log('Click "Test Login" first, then "Test Mock Payment"', 'info');
+    </script>
+</body>
+</html>

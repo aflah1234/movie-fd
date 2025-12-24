@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Environment Test</title>
+</head>
+<body>
+    <h1>Environment Variables Test</h1>
+    <script>
+        console.log('VITE_SKIP_RAZORPAY:', import.meta.env.VITE_SKIP_RAZORPAY);
+        console.log('VITE_RAZORPAY_KEY_ID:', import.meta.env.VITE_RAZORPAY_KEY_ID);
+        console.log('All env vars:', import.meta.env);
+        
+        document.body.innerHTML += '<p>VITE_SKIP_RAZORPAY: ' + import.meta.env.VITE_SKIP_RAZORPAY + '</p>';
+        document.body.innerHTML += '<p>VITE_RAZORPAY_KEY_ID: ' + import.meta.env.VITE_RAZORPAY_KEY_ID + '</p>';
+        
+        if (import.meta.env.VITE_SKIP_RAZORPAY === 'true') {
+            document.body.innerHTML += '<h2 style="color: green;">✅ Mock payment mode should be active!</h2>';
+        } else {
+            document.body.innerHTML += '<h2 style="color: red;">❌ Mock payment mode not detected</h2>';
+        }
+    </script>
+</body>
+</html>
