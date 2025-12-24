@@ -56,26 +56,34 @@ const SeatSelection = () => {
 
   const totalPrice = selectedSeats.length * ticketPrice;
 
-  const handlePayment = async () => {
+  const handleBooking = async () => {
     if (selectedSeats.length === 0) {
       toast.error("Please select at least one seat.");
       return;
     }
 
     try {
+      toast.loading("Confirming your booking...");
+      
       const response = await axiosInstance.post("/booking/create", {
         showId,
         selectedSeats,
         totalPrice,
       });
 
-      const { bookingId } = response.data;
+      toast.dismiss();
+      toast.success("Booking confirmed successfully!");
 
-      navigate(`/user/payment/${showId}`, {
-        state: { selectedSeats, totalPrice, bookingId, movieTitle, theaterName, theaterLocation, showTime, poster },
+      // Navigate directly to success page with booking details
+      navigate("/user/booking-success", {
+        state: { 
+          booking: response.data.booking,
+          fromBooking: true
+        },
       });
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to initiate booking.");
+      toast.dismiss();
+      toast.error(error.response?.data?.message || "Failed to confirm booking.");
     }
   };
 
@@ -176,7 +184,7 @@ const SeatSelection = () => {
         className="mt-4 w-full max-w-xs sm:max-w-md md:max-w-lg"
       />
 
-      {/* Total and Payment Section */}
+      {/* Total and Booking Section */}
       <div className="flex flex-col md:flex-row items-start md:items-center gap-6 justify-between w-full md:w-1/2 mt-10 bg-base-200 p-6 rounded-lg">
         <div>
           <p className="text-lg font-semibold text-primary mb-2">TOTAL</p>
@@ -187,9 +195,10 @@ const SeatSelection = () => {
           <p className="text-base font-bold">{selectedSeats.join(", ") || "None"}</p>
         </div>
         <Button
-          title={`Pay ₹ ${totalPrice}`}
+          title={`Book Now - ₹ ${totalPrice}`}
           className="w-full md:w-auto"
-          onClick={handlePayment}
+          onClick={handleBooking}
+        />
         />
       </div>
     </div>

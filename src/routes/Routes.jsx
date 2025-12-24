@@ -34,7 +34,7 @@ import AddMovies from "../pages/admin/AddMovies";
 import OwnerLandingPage from "../pages/owner/OwnerLandingPage";
 import AdminLandingPage from "../pages/admin/AdminLandingPage";
 import PaymentSuccess from "../pages/user/PaymentSuccess";
-import PaymentFailed from "../pages/user/PaymentFailed";
+import BookingSuccess from "../pages/user/BookingSuccess";
 
 export const router = createBrowserRouter([
   {
@@ -99,6 +99,10 @@ export const router = createBrowserRouter([
           {
             path: "seat-selection/:showId",
             element: <SeatSelection />,
+          },
+          {
+            path: "booking-success",
+            element: <BookingSuccess />,
           },
           {
             path: "payment/:showId",
