@@ -195,11 +195,11 @@ const SeatSelection = () => {
           <p className="text-base font-bold">{selectedSeats.join(", ") || "None"}</p>
         </div>
         <Button
-          title={`Book Now - ₹ ${totalPrice}`}
+          title={`Reserve Seats - ₹ ${totalPrice} (Pay at Theater)`}
           className="w-full md:w-auto"
           onClick={handleBooking}
         />
-        />
+        
       </div>
     </div>
   );

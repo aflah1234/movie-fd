@@ -222,8 +222,11 @@ const BookingSuccess = () => {
             <p className="text-sm text-gray-500 mb-2">
               Please arrive 15 minutes before showtime
             </p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-400 mb-2">
               Show this ticket at the theater entrance
+            </p>
+            <p className="text-xs text-yellow-600 font-semibold">
+              💳 Payment to be collected at the theater counter
             </p>
           </div>
         </motion.div>
@@ -263,7 +266,7 @@ const BookingSuccess = () => {
           variants={textVariants}
           className="text-sm base mt-6 no-print"
         >
-          🎫 Your booking has been confirmed - no payment required!
+          🎫 Your booking has been confirmed! Payment will be collected at the theater.
         </motion.p>
       </motion.div>
     </div>

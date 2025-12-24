@@ -87,6 +87,30 @@ const Bookings = () => {
                       </span>{" "}
                       {booking.bookedSeats.join(", ")}
                     </p>
+                    <p>
+                      <span className="font-medium text-gray-300">
+                        Total Price:
+                      </span>{" "}
+                      <span className="text-primary font-semibold">₹{booking.totalPrice}</span>
+                    </p>
+                    <p>
+                      <span className="font-medium text-gray-300">
+                        Payment Status:
+                      </span>{" "}
+                      <span className={`font-semibold ${
+                        booking.paymentStatus === 'paid_at_theater' 
+                          ? 'text-green-500' 
+                          : booking.paymentStatus === 'paid_online'
+                          ? 'text-blue-500'
+                          : 'text-yellow-500'
+                      }`}>
+                        {booking.paymentStatus === 'paid_at_theater' 
+                          ? '✅ Paid at Theater' 
+                          : booking.paymentStatus === 'paid_online'
+                          ? '💳 Paid Online'
+                          : '⏳ Payment Pending'}
+                      </span>
+                    </p>
                   </div>
                 </div>
                 <div className="mt-2 sm:mt-0">
