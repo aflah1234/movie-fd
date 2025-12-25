@@ -98,16 +98,8 @@ const Footer = () => {
         <div className="border-t border-primary/20 pt-8">
           <div className="flex flex-col sm:flex-row justify-between items-center">
             <p className="text-xs text-base-content/60">
-              © 2025 CineBook. All rights reserved. 🎬 Made with ❤️ for movie lovers
+              © 2025 CineBook. All rights reserved.
             </p>
-            <div className="flex items-center gap-2 mt-4 sm:mt-0 text-xs text-base-content/40">
-              <span>Powered by</span>
-              <span className="text-primary font-semibold">React</span>
-              <span>•</span>
-              <span className="text-secondary font-semibold">Node.js</span>
-              <span>•</span>
-              <span className="text-accent font-semibold">MongoDB</span>
-            </div>
           </div>
         </div>
       </div>
