@@ -1,6 +1,8 @@
 import React from 'react'
 import { useState, useEffect } from "react";
 import {Button} from "../../components/ui/Buttons";
+import axiosInstance from "../../config/axiosInstance";
+import toast from "react-hot-toast";
 
 const EditMovieModal = ({ movie, onClose, onUpdate }) => {
     const [formData, setFormData] = useState({
@@ -14,6 +16,10 @@ const EditMovieModal = ({ movie, onClose, onUpdate }) => {
       bannerImg: "",
       verticalImg: "",
     });
+    const [bannerImgFile, setBannerImgFile] = useState(null);
+    const [verticalImgFile, setVerticalImgFile] = useState(null);
+    const [bannerImgType, setBannerImgType] = useState("url");
+    const [verticalImgType, setVerticalImgType] = useState("url");
   
     useEffect(() => {
       if (movie) {
@@ -35,15 +41,48 @@ const EditMovieModal = ({ movie, onClose, onUpdate }) => {
       setFormData({ ...formData, [e.target.name]: e.target.value });
     };
   
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
       e.preventDefault();
-      const updatedMovie = {
-        ...formData,
-        genre: formData.genre.split(",").map((item) => item.trim()),
-        cast: formData.cast.split(",").map((item) => item.trim()),
-        language: formData.language.split(",").map((item) => item.trim()),
-      };
-      onUpdate(updatedMovie);
+      
+      const formDataToSend = new FormData();
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("duration", formData.duration);
+      formDataToSend.append("genre", formData.genre);
+      formDataToSend.append("plot", formData.plot);
+      formDataToSend.append("cast", formData.cast);
+      formDataToSend.append("releaseDate", formData.releaseDate);
+      formDataToSend.append("language", formData.language);
+
+      // Add images based on type
+      if (bannerImgType === "url" && formData.bannerImg) {
+        formDataToSend.append("bannerImg", formData.bannerImg);
+      } else if (bannerImgType === "file" && bannerImgFile) {
+        formDataToSend.append("bannerImg", bannerImgFile);
+      }
+
+      if (verticalImgType === "url" && formData.verticalImg) {
+        formDataToSend.append("verticalImg", formData.verticalImg);
+      } else if (verticalImgType === "file" && verticalImgFile) {
+        formDataToSend.append("verticalImg", verticalImgFile);
+      }
+
+      try {
+        const response = await axiosInstance.put(`/movie/update-movie/${movie._id}`, formDataToSend, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        if (response.status === 200) {
+          toast.success("Movie updated successfully!");
+          onUpdate(response.data.data);
+          onClose();
+        }
+      } catch (err) {
+        const errorMessage = err.response?.data?.message || "Failed to update movie";
+        toast.error(errorMessage);
+        console.error("Error updating movie:", err);
+      }
     };
   
     return (
@@ -131,26 +170,88 @@ const EditMovieModal = ({ movie, onClose, onUpdate }) => {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Banner Image URL</label>
-              <input
-                type="url"
-                name="bannerImg"
-                value={formData.bannerImg}
-                onChange={handleChange}
-                className="w-full p-2 rounded-md bg-base-300 border border-gray-600 focus:outline-none focus:border-primary text-base"
-                required
-              />
+              <label className="block text-sm font-medium mb-2">Banner Image</label>
+              <div className="flex gap-2 mb-2">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="url"
+                    checked={bannerImgType === "url"}
+                    onChange={(e) => setBannerImgType(e.target.value)}
+                    className="mr-1"
+                  />
+                  URL
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="file"
+                    checked={bannerImgType === "file"}
+                    onChange={(e) => setBannerImgType(e.target.value)}
+                    className="mr-1"
+                  />
+                  Upload New File
+                </label>
+              </div>
+              {bannerImgType === "url" ? (
+                <input
+                  type="url"
+                  name="bannerImg"
+                  value={formData.bannerImg}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded-md bg-base-300 border border-gray-600 focus:outline-none focus:border-primary text-base"
+                  placeholder="Enter banner image URL"
+                />
+              ) : (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setBannerImgFile(e.target.files[0])}
+                  className="w-full p-2 rounded-md bg-base-300 border border-gray-600 focus:outline-none focus:border-primary text-base"
+                />
+              )}
             </div>
             <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">Vertical Image URL</label>
-              <input
-                type="url"
-                name="verticalImg"
-                value={formData.verticalImg}
-                onChange={handleChange}
-                className="w-full p-2 rounded-md bg-base-300 border border-gray-600 focus:outline-none focus:border-primary text-base"
-                required
-              />
+              <label className="block text-sm font-medium mb-2">Vertical Image</label>
+              <div className="flex gap-2 mb-2">
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="url"
+                    checked={verticalImgType === "url"}
+                    onChange={(e) => setVerticalImgType(e.target.value)}
+                    className="mr-1"
+                  />
+                  URL
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="radio"
+                    value="file"
+                    checked={verticalImgType === "file"}
+                    onChange={(e) => setVerticalImgType(e.target.value)}
+                    className="mr-1"
+                  />
+                  Upload New File
+                </label>
+              </div>
+              {verticalImgType === "url" ? (
+                <input
+                  type="url"
+                  name="verticalImg"
+                  value={formData.verticalImg}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded-md bg-base-300 border border-gray-600 focus:outline-none focus:border-primary text-base"
+                  placeholder="Enter vertical image URL"
+                />
+              ) : (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setVerticalImgFile(e.target.files[0])}
+                  className="w-full p-2 rounded-md bg-base-300 border border-gray-600 focus:outline-none focus:border-primary text-base"
+                />
+              )}
             </div>
             <div className="modal-action">
               <Button

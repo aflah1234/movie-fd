@@ -49,23 +49,13 @@ const MovieListComponent = ({ showActions = false, refreshKey, searchTerm = '' }
   };
 
   //-------- Update Movie -----
-  const handleUpdate = async (updatedMovie) => {
-    try {
-      const response = await axiosInstance.put(
-        `/movie/update-movie/${selectedMovie._id}`,
-        updatedMovie
-      );
-      setMovies(
-        movies.map((m) =>
-          m._id === selectedMovie._id ? response.data.data : m
-        )
-      );
-      setSelectedMovie(null);
-      Swal.fire("Updated!", "Movie updated successfully", "success");
-    } catch (error) {
-      console.error("Failed to update movie:", error);
-      Swal.fire("Error!", "Failed to update movie", "error");
-    }
+  const handleUpdate = (updatedMovie) => {
+    setMovies(
+      movies.map((m) =>
+        m._id === selectedMovie._id ? updatedMovie : m
+      )
+    );
+    setSelectedMovie(null);
   };
 
   if (loading) {
