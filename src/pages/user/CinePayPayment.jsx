@@ -142,7 +142,13 @@ const CinePayPayment = () => {
     setLoading(true);
 
     try {
-      console.log('🎬 CinePay: Creating transaction...', { bookingId, amount: totalPrice });
+      console.log('🎬 CinePay: Creating transaction...');
+      console.log('API URL:', import.meta.env.VITE_API_URL);
+      console.log('Request data:', { 
+        bookingId, 
+        amount: totalPrice,
+        hasCardDetails: !!cardDetails 
+      });
       
       // Step 1: Create transaction
       const createResponse = await axiosInstance.post("/cinepay/createTransaction", {
@@ -195,8 +201,13 @@ const CinePayPayment = () => {
           });
         } catch (processError) {
           console.error("❌ CinePay payment failed:", processError);
-          console.error("Error response:", processError.response?.data);
-          const errorMessage = processError.response?.data?.message || "Payment failed";
+          console.error("Full error object:", {
+            message: processError.message,
+            response: processError.response,
+            request: processError.request,
+            config: processError.config
+          });
+          const errorMessage = processError.response?.data?.message || processError.message || "Payment failed";
           toast.error(errorMessage);
           navigate("/user/payment-failed");
         }
@@ -204,8 +215,23 @@ const CinePayPayment = () => {
       }, 1000);
     } catch (error) {
       console.error("❌ CinePay transaction creation failed:", error);
-      console.error("Error response:", error.response?.data);
-      const errorMessage = error.response?.data?.message || "Failed to initiate payment";
+      console.error("Full error object:", {
+        message: error.message,
+        response: error.response,
+        request: error.request,
+        config: error.config,
+        code: error.code
+      });
+      
+      let errorMessage = "Failed to initiate payment";
+      if (error.code === 'ERR_NETWORK') {
+        errorMessage = "Network error. Please check your connection and backend URL.";
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast.error(errorMessage);
       setLoading(false);
     }

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Connection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            background: #333;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+    </style>
+</head>
+<body>
+    <h1>🎬 CinePay API Connection Test</h1>
+    
+    <div class="test-section">
+        <h2>Configuration</h2>
+        <div id="config"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 1: Backend Health Check</h2>
+        <button onclick="testHealth()">Test Health Endpoint</button>
+        <div id="health-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: CORS Test</h2>
+        <button onclick="testCORS()">Test CORS</button>
+        <div id="cors-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Auth Test</h2>
+        <button onclick="testAuth()">Test Authentication</button>
+        <div id="auth-result" class="result"></div>
+    </div>
+
+    <script>
+        // Update these URLs to match your deployment
+        const BACKEND_URL = 'https://movie-bd-ashen.vercel.app';
+        const FRONTEND_URL = window.location.origin;
+
+        document.getElementById('config').innerHTML = `
+            <strong>Frontend URL:</strong> ${FRONTEND_URL}<br>
+            <strong>Backend URL:</strong> ${BACKEND_URL}<br>
+            <strong>API Base:</strong> ${BACKEND_URL}/api
+        `;
+
+        async function testHealth() {
+            const resultDiv = document.getElementById('health-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <span class="success">✅ Success!</span>
+                    <br><br>
+                    ${JSON.stringify(data, null, 2)}
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <span class="error">❌ Error!</span>
+                    <br><br>
+                    ${error.message}
+                    <br><br>
+                    This usually means:
+                    - Backend is not running
+                    - Backend URL is incorrect
+                    - Network connectivity issue
+                `;
+            }
+        }
+
+        async function testCORS() {
+            const resultDiv = document.getElementById('cors-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/debug`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <span class="success">✅ CORS is working!</span>
+                    <br><br>
+                    ${JSON.stringify(data, null, 2)}
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <span class="error">❌ CORS Error!</span>
+                    <br><br>
+                    ${error.message}
+                    <br><br>
+                    <span class="warning">⚠️ This means your frontend URL (${FRONTEND_URL}) is not allowed by the backend.</span>
+                    <br><br>
+                    <strong>Solution:</strong>
+                    1. Add your frontend URL to the CORS allowed origins in server.js
+                    2. Or set FRONTEND_URL environment variable in backend to: ${FRONTEND_URL}
+                `;
+            }
+        }
+
+        async function testAuth() {
+            const resultDiv = document.getElementById('auth-result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/auth-test`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.hasToken) {
+                    resultDiv.innerHTML = `
+                        <span class="success">✅ Authentication token found!</span>
+                        <br><br>
+                        ${JSON.stringify(data, null, 2)}
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <span class="warning">⚠️ No authentication token</span>
+                        <br><br>
+                        ${JSON.stringify(data, null, 2)}
+                        <br><br>
+                        <strong>Note:</strong> You need to login first to test authenticated endpoints.
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <span class="error">❌ Error!</span>
+                    <br><br>
+                    ${error.message}
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
