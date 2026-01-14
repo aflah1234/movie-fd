@@ -165,54 +165,69 @@ const CinePayPayment = () => {
       console.log("✅ CinePay transaction created:", transactionId);
       toast.success("Processing payment...");
 
-      // Step 2: Process payment
-      setTimeout(async () => {
-        try {
-          console.log('🎬 CinePay: Processing payment...', { transactionId, bookingId });
-          
-          const processResponse = await axiosInstance.post("/cinepay/processPayment", {
-            transactionId,
-            bookingId,
-            cardDetails: {
-              cardNumber: cardDetails.cardNumber.replace(/\s/g, ""),
-              expiryDate: cardDetails.expiryDate,
-              cvv: cardDetails.cvv,
-            },
-          });
+      // Step 2: Process payment immediately (no artificial delay)
+      try {
+        console.log('🎬 CinePay: Processing payment...', { transactionId, bookingId });
+        
+        const processResponse = await axiosInstance.post("/cinepay/processPayment", {
+          transactionId,
+          bookingId,
+          cardDetails: {
+            cardNumber: cardDetails.cardNumber.replace(/\s/g, ""),
+            expiryDate: cardDetails.expiryDate,
+            cvv: cardDetails.cvv,
+          },
+        });
 
-          console.log("✅ CinePay payment successful:", processResponse.data);
-          toast.success("Payment successful!");
-          
-          // Navigate to success page with booking details
-          navigate("/user/booking-success", {
-            state: {
-              booking: {
-                bookingId: processResponse.data.bookingId || bookingId,
-                movieName: movieTitle,
-                theaterName: theaterName,
-                location: theaterLocation,
-                showTime: time,
-                showDate: date,
-                selectedSeats: selectedSeats,
-                totalPrice: totalPrice,
-                status: "booked"
-              }
+        console.log("✅ CinePay payment successful:", processResponse.data);
+        toast.success("Payment successful!");
+        
+        // Navigate to success page with booking details
+        navigate("/user/booking-success", {
+          state: {
+            booking: {
+              bookingId: processResponse.data.bookingId || bookingId,
+              movieName: movieTitle,
+              theaterName: theaterName,
+              location: theaterLocation,
+              showTime: time,
+              showDate: date,
+              selectedSeats: selectedSeats,
+              totalPrice: totalPrice,
+              status: "booked"
             }
-          });
-        } catch (processError) {
-          console.error("❌ CinePay payment failed:", processError);
-          console.error("Full error object:", {
-            message: processError.message,
-            response: processError.response,
-            request: processError.request,
-            config: processError.config
-          });
-          const errorMessage = processError.response?.data?.message || processError.message || "Payment failed";
-          toast.error(errorMessage);
+          }
+        });
+      } catch (processError) {
+        console.error("❌ CinePay payment failed:", processError);
+        console.error("Full error object:", {
+          message: processError.message,
+          response: processError.response,
+          request: processError.request,
+          config: processError.config,
+          code: processError.code
+        });
+        
+        let errorMessage = "Payment failed";
+        if (processError.code === 'ECONNABORTED') {
+          errorMessage = "Payment processing timed out. Please check your booking status or try again.";
+        } else if (processError.code === 'ERR_NETWORK') {
+          errorMessage = "Network error. Please check your connection.";
+        } else if (processError.response?.data?.message) {
+          errorMessage = processError.response.data.message;
+        } else if (processError.message) {
+          errorMessage = processError.message;
+        }
+        
+        toast.error(errorMessage);
+        
+        // Don't navigate to payment-failed immediately on timeout
+        // The payment might still be processing
+        if (processError.code !== 'ECONNABORTED') {
           navigate("/user/payment-failed");
         }
-        setLoading(false);
-      }, 1000);
+      }
+      setLoading(false);
     } catch (error) {
       console.error("❌ CinePay transaction creation failed:", error);
       console.error("Full error object:", {
@@ -224,7 +239,9 @@ const CinePayPayment = () => {
       });
       
       let errorMessage = "Failed to initiate payment";
-      if (error.code === 'ERR_NETWORK') {
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = "Connection timed out. The server might be starting up. Please try again.";
+      } else if (error.code === 'ERR_NETWORK') {
         errorMessage = "Network error. Please check your connection and backend URL.";
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
