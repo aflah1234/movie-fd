@@ -142,6 +142,8 @@ const CinePayPayment = () => {
     setLoading(true);
 
     try {
+      console.log('🎬 CinePay: Creating transaction...', { bookingId, amount: totalPrice });
+      
       // Step 1: Create transaction
       const createResponse = await axiosInstance.post("/cinepay/createTransaction", {
         amount: totalPrice,
@@ -160,6 +162,8 @@ const CinePayPayment = () => {
       // Step 2: Process payment
       setTimeout(async () => {
         try {
+          console.log('🎬 CinePay: Processing payment...', { transactionId, bookingId });
+          
           const processResponse = await axiosInstance.post("/cinepay/processPayment", {
             transactionId,
             bookingId,
@@ -170,11 +174,28 @@ const CinePayPayment = () => {
             },
           });
 
-          console.log("✅ CinePay payment successful");
+          console.log("✅ CinePay payment successful:", processResponse.data);
           toast.success("Payment successful!");
-          navigate("/user/payment-success");
+          
+          // Navigate to success page with booking details
+          navigate("/user/booking-success", {
+            state: {
+              booking: {
+                bookingId: processResponse.data.bookingId || bookingId,
+                movieName: movieTitle,
+                theaterName: theaterName,
+                location: theaterLocation,
+                showTime: time,
+                showDate: date,
+                selectedSeats: selectedSeats,
+                totalPrice: totalPrice,
+                status: "booked"
+              }
+            }
+          });
         } catch (processError) {
           console.error("❌ CinePay payment failed:", processError);
+          console.error("Error response:", processError.response?.data);
           const errorMessage = processError.response?.data?.message || "Payment failed";
           toast.error(errorMessage);
           navigate("/user/payment-failed");
@@ -183,7 +204,9 @@ const CinePayPayment = () => {
       }, 1000);
     } catch (error) {
       console.error("❌ CinePay transaction creation failed:", error);
-      toast.error(error.response?.data?.message || "Failed to initiate payment");
+      console.error("Error response:", error.response?.data);
+      const errorMessage = error.response?.data?.message || "Failed to initiate payment";
+      toast.error(errorMessage);
       setLoading(false);
     }
   };
