@@ -63,7 +63,7 @@ const SeatSelection = () => {
     }
 
     try {
-      toast.loading("Confirming your booking...");
+      toast.loading("Creating booking...");
       
       const response = await axiosInstance.post("/booking/create", {
         showId,
@@ -72,18 +72,24 @@ const SeatSelection = () => {
       });
 
       toast.dismiss();
-      toast.success("Booking confirmed successfully!");
+      toast.success("Booking created! Proceed to payment.");
 
-      // Navigate directly to success page with booking details
-      navigate("/user/booking-success", {
+      // Navigate to payment gateway with booking details
+      navigate(`/user/payment-gateway/${showId}`, {
         state: { 
-          booking: response.data.booking,
-          fromBooking: true
+          selectedSeats,
+          totalPrice,
+          bookingId: response.data.booking.bookingId,
+          movieTitle: response.data.booking.movieName,
+          theaterName: response.data.booking.theaterName,
+          theaterLocation: response.data.booking.location,
+          showTime: response.data.booking.showTime,
+          poster: response.data.booking.poster,
         },
       });
     } catch (error) {
       toast.dismiss();
-      toast.error(error.response?.data?.message || "Failed to confirm booking.");
+      toast.error(error.response?.data?.message || "Failed to create booking.");
     }
   };
 

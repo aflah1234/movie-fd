@@ -14,7 +14,7 @@ const Bookings = () => {
   const handleAddReview = (booking) => {
     if (!booking.movieId) {
       console.error("No movieId found in booking:", booking);
-      setError("Cannot add review: Movie ID missing");
+      toast.error("Cannot add review: Movie ID missing");
       return;
     }
     setSelectedBooking(booking);
@@ -25,7 +25,25 @@ const Bookings = () => {
   };
 
   if (isLoading) return <BookingSkeleton />;
-  if (error) toast.error(error);
+  
+  if (error) {
+    return (
+      <div className="min-h-screen bg-base-100 text-base p-4 sm:p-10 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-500 text-lg font-medium mb-4">
+            {typeof error === 'string' ? error : 'Failed to load bookings'}
+          </p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/80"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
   if (bookings.length === 0)
     return (
       <p className="text-center text-gray-500 text-lg font-medium mt-6 sm:mt-10">

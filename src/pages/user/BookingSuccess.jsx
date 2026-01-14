@@ -1,179 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CheckCircle, Calendar, Clock, MapPin, Users, CreditCard, Printer, Home, List, Download } from "lucide-react";
+import { CheckCircle, Download, Printer, Home, List } from "lucide-react";
 
 const BookingSuccess = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const [seconds, setSeconds] = useState(10);
 
-  // Debug logging to verify new UI is loading
-  console.log("🎉 NEW BOOKING SUCCESS UI LOADED - v2024.12.24");
-  console.log("✨ Modern success theme active");
-
   const bookingDetails = state?.booking;
-
-  // Download ticket as image function
-  const downloadTicket = async () => {
-    try {
-      const ticketElement = document.querySelector('.ticket-print');
-      if (!ticketElement) {
-        alert('Ticket not found. Please try again.');
-        return;
-      }
-
-      // Create a clean version of the ticket for download
-      const ticketClone = ticketElement.cloneNode(true);
-      
-      // Create a temporary container with simple styles
-      const tempContainer = document.createElement('div');
-      tempContainer.style.position = 'absolute';
-      tempContainer.style.left = '-9999px';
-      tempContainer.style.top = '0';
-      tempContainer.style.background = 'white';
-      tempContainer.style.padding = '20px';
-      tempContainer.style.fontFamily = 'Arial, sans-serif';
-      
-      // Clean up the cloned element - remove complex CSS classes
-      const cleanTicket = document.createElement('div');
-      cleanTicket.innerHTML = `
-        <div style="background: white; border: 2px solid #d1d5db; border-radius: 8px; overflow: hidden; max-width: 600px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-          <div style="display: flex;">
-            <!-- Main Section -->
-            <div style="background: white; color: black; padding: 24px; flex: 1; position: relative;">
-              <!-- Header -->
-              <div style="margin-bottom: 16px; display: flex; align-items: flex-start; justify-content: space-between;">
-                <div>
-                  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                    <span style="font-size: 24px;">🎬</span>
-                    <div>
-                      <h2 style="font-size: 20px; font-weight: bold; letter-spacing: 0.05em; color: black; margin: 0;">CINEMA</h2>
-                      <h3 style="font-size: 18px; font-weight: bold; letter-spacing: 0.05em; color: black; margin: 0;">TICKET</h3>
-                    </div>
-                  </div>
-                  <p style="font-size: 14px; font-weight: 600; letter-spacing: 0.05em; color: #6b7280; margin: 0;">ADMIT ONE</p>
-                </div>
-                <!-- Film Strip -->
-                <div>
-                  <div style="width: 64px; height: 48px; background: #374151; border-radius: 4px; position: relative; overflow: hidden;">
-                    <div style="position: absolute; left: 4px; top: 4px; width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
-                    <div style="position: absolute; left: 4px; bottom: 4px; width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
-                    <div style="position: absolute; right: 4px; top: 4px; width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
-                    <div style="position: absolute; right: 4px; bottom: 4px; width: 8px; height: 8px; background: white; border-radius: 50%;"></div>
-                    <div style="position: absolute; left: 8px; top: 8px; right: 8px; bottom: 8px; border: 1px solid white; opacity: 0.5;"></div>
-                  </div>
-                  <div style="margin-top: 4px; display: flex; justify-content: center;">
-                    <div style="width: 32px; height: 24px; background: black; border-radius: 2px; position: relative;">
-                      <div style="position: absolute; left: -4px; top: 50%; transform: translateY(-50%); width: 8px; height: 12px; background: black; border-radius: 50%;"></div>
-                      <div style="position: absolute; right: -4px; top: 50%; transform: translateY(-50%); width: 4px; height: 4px; background: black; border-radius: 50%;"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Movie Details -->
-              <div style="margin-right: 24px;">
-                <div style="border-bottom: 1px solid #d1d5db; padding-bottom: 8px; margin-bottom: 12px;">
-                  <h4 style="font-size: 18px; font-weight: bold; color: black; text-transform: uppercase; letter-spacing: 0.025em; margin: 0 0 4px 0;">${bookingDetails.movieName}</h4>
-                  <p style="color: #6b7280; font-size: 14px; font-weight: 500; margin: 0;">${bookingDetails.theaterName}</p>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 14px; margin-bottom: 12px;">
-                  <div>
-                    <p style="color: #6b7280; text-transform: uppercase; font-size: 12px; font-weight: 600; letter-spacing: 0.025em; margin: 0 0 4px 0;">DATE</p>
-                    <p style="font-weight: bold; color: black; margin: 0;">${bookingDetails.showDate}</p>
-                  </div>
-                  <div>
-                    <p style="color: #6b7280; text-transform: uppercase; font-size: 12px; font-weight: 600; letter-spacing: 0.025em; margin: 0 0 4px 0;">TIME</p>
-                    <p style="font-weight: bold; color: black; margin: 0;">${bookingDetails.showTime}</p>
-                  </div>
-                  <div>
-                    <p style="color: #6b7280; text-transform: uppercase; font-size: 12px; font-weight: 600; letter-spacing: 0.025em; margin: 0 0 4px 0;">SEATS</p>
-                    <p style="font-weight: bold; color: black; margin: 0;">${bookingDetails.selectedSeats.join(', ')}</p>
-                  </div>
-                  <div>
-                    <p style="color: #6b7280; text-transform: uppercase; font-size: 12px; font-weight: 600; letter-spacing: 0.025em; margin: 0 0 4px 0;">PRICE</p>
-                    <p style="font-weight: bold; color: black; font-size: 18px; margin: 0;">₹${bookingDetails.totalPrice}</p>
-                  </div>
-                </div>
-
-                <div style="border-top: 1px solid #d1d5db; padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
-                  <div>
-                    <p style="font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: 600; letter-spacing: 0.025em; margin: 0 0 4px 0;">STATUS</p>
-                    <p style="font-weight: bold; color: #059669; margin: 0;">${bookingDetails.status.toUpperCase()}</p>
-                  </div>
-                  <div style="text-align: right;">
-                    <p style="font-size: 12px; color: #6b7280; text-transform: uppercase; font-weight: 600; letter-spacing: 0.025em; margin: 0 0 4px 0;">TICKET ID</p>
-                    <p style="font-family: monospace; font-size: 12px; color: black; margin: 0;">${bookingDetails.bookingId.slice(-8)}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Barcode Section -->
-            <div style="background: white; color: black; padding: 16px; width: 80px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; border-left: 2px dashed #9ca3af;">
-              <div style="transform: rotate(90deg); flex: 1; display: flex; align-items: center;">
-                <div style="display: flex; gap: 1px;">
-                  ${Array.from({ length: 30 }).map(() => 
-                    `<div style="background: black; width: ${Math.random() > 0.5 ? '2px' : '1px'}; height: 45px;"></div>`
-                  ).join('')}
-                </div>
-              </div>
-              <div style="text-align: center; margin-top: 16px;">
-                <p style="font-size: 12px; font-family: monospace; color: black; transform: rotate(-90deg); white-space: nowrap; margin: 0;">${bookingDetails.bookingId.slice(-6)}</p>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Footer -->
-          <div style="background: #f3f4f6; padding: 8px 24px; border-top: 1px solid #d1d5db;">
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #6b7280;">
-              <span style="font-weight: 600;">🎬 CINEBOOK THEATERS</span>
-              <span>Present this ticket at entrance</span>
-              <span style="font-family: monospace;">${new Date().toLocaleDateString()}</span>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      tempContainer.appendChild(cleanTicket);
-      document.body.appendChild(tempContainer);
-
-      // Import html2canvas dynamically
-      const html2canvas = await import('html2canvas');
-      const canvas = html2canvas.default;
-      
-      // Create canvas from clean ticket
-      const canvasElement = await canvas(cleanTicket, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        width: 600,
-        height: 400
-      });
-
-      // Remove temporary container
-      document.body.removeChild(tempContainer);
-
-      // Convert to blob and download
-      canvasElement.toBlob((blob) => {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `cinema-ticket-${bookingDetails.movieName.replace(/\s+/g, '-')}-${bookingDetails.bookingId}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }, 'image/png');
-
-    } catch (error) {
-      console.error('Download failed:', error);
-      // Fallback: try to print instead
-      alert('Download failed. Please use the print option instead.');
-    }
-  };
 
   useEffect(() => {
     if (!bookingDetails) {
@@ -201,10 +35,49 @@ const BookingSuccess = () => {
     };
   }, [navigate, bookingDetails]);
 
+  const downloadTicket = async () => {
+    try {
+      const ticketElement = document.querySelector('.ticket-print');
+      if (!ticketElement) {
+        alert('Ticket not found. Please try again.');
+        return;
+      }
+
+      // Dynamically import html2canvas
+      const html2canvas = (await import('html2canvas')).default;
+      
+      // Create canvas from ticket element
+      const canvas = await html2canvas(ticketElement, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+      });
+
+      // Convert canvas to blob and download
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const fileName = `cinema-ticket-${bookingDetails.movieName.replace(/\s+/g, '-')}-${bookingDetails.bookingId.slice(-8)}.png`;
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+
+    } catch (error) {
+      console.error('Download failed:', error);
+      alert('Download failed. Please try the print option instead.');
+    }
+  };
+
   if (!bookingDetails) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 flex items-center justify-center p-4">
-        <div className="loading loading-spinner loading-lg text-purple-400"></div>
+      <div className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-900 to-cyan-900 flex items-center justify-center p-4">
+        <div className="loading loading-spinner loading-lg text-emerald-400"></div>
       </div>
     );
   }
@@ -212,11 +85,6 @@ const BookingSuccess = () => {
   return (
     <div 
       className="min-h-screen bg-gradient-to-br from-emerald-900 via-teal-900 to-cyan-900 text-white p-4 sm:p-6 lg:p-8"
-      style={{
-        background: 'linear-gradient(135deg, #064e3b 0%, #0f766e 50%, #155e75 100%)',
-        minHeight: '100vh',
-        color: 'white'
-      }}
     >
       <div className="max-w-4xl mx-auto">
         {/* Success Header */}
@@ -238,141 +106,184 @@ const BookingSuccess = () => {
         </div>
 
         {/* Vintage Cinema Ticket */}
-        <div className="max-w-2xl mx-auto mb-8">
-          <div className="bg-white rounded-lg shadow-2xl overflow-hidden border-2 border-gray-300 ticket-print">
-            <div className="flex">
-              {/* Main Ticket Section */}
-              <div className="bg-white text-black p-6 flex-1 relative">
-                {/* Perforated Edge */}
-                <div className="absolute right-0 top-0 bottom-0 w-4">
-                  <div className="h-full flex flex-col justify-between py-2">
-                    {Array.from({ length: 12 }).map((_, i) => (
-                      <div key={i} className="w-2 h-2 bg-gray-400 rounded-full mx-auto"></div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Header with Film Strip Design */}
-                <div className="mb-4 flex items-start justify-between pr-6">
-                  <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-2xl">🎬</span>
-                      <div>
-                        <h2 className="text-xl font-bold tracking-wider text-black">CINEMA</h2>
-                        <h3 className="text-lg font-bold tracking-wider text-black">TICKET</h3>
-                      </div>
-                      {/* Visual indicator for new design */}
-                      <div className="ml-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
-                        NEW v2024
-                      </div>
+        <div className="max-w-3xl mx-auto mb-8 ticket-print">
+          <div 
+            className="bg-white rounded-lg shadow-2xl overflow-hidden relative"
+            style={{
+              clipPath: 'polygon(0 0, 2% 3%, 4% 0, 6% 3%, 8% 0, 10% 3%, 12% 0, 14% 3%, 16% 0, 18% 3%, 20% 0, 22% 3%, 24% 0, 26% 3%, 28% 0, 30% 3%, 32% 0, 34% 3%, 36% 0, 38% 3%, 40% 0, 42% 3%, 44% 0, 46% 3%, 48% 0, 50% 3%, 52% 0, 54% 3%, 56% 0, 58% 3%, 60% 0, 62% 3%, 64% 0, 66% 3%, 68% 0, 70% 3%, 72% 0, 74% 3%, 76% 0, 78% 3%, 80% 0, 82% 3%, 84% 0, 86% 3%, 88% 0, 90% 3%, 92% 0, 94% 3%, 96% 0, 98% 3%, 100% 0, 100% 100%, 98% 97%, 96% 100%, 94% 97%, 92% 100%, 90% 97%, 88% 100%, 86% 97%, 84% 100%, 82% 97%, 80% 100%, 78% 97%, 76% 100%, 74% 97%, 72% 100%, 70% 97%, 68% 100%, 66% 97%, 64% 100%, 62% 97%, 60% 100%, 58% 97%, 56% 100%, 54% 97%, 52% 100%, 50% 97%, 48% 100%, 46% 97%, 44% 100%, 42% 97%, 40% 100%, 38% 97%, 36% 100%, 34% 97%, 32% 100%, 30% 97%, 28% 100%, 26% 97%, 24% 100%, 22% 97%, 20% 100%, 18% 97%, 16% 100%, 14% 97%, 12% 100%, 10% 97%, 8% 100%, 6% 97%, 4% 100%, 2% 97%, 0 100%)'
+            }}
+          >
+            
+            {/* Top Section */}
+            <div className="bg-gradient-to-r from-gray-100 to-gray-50 p-6 border-b-2 border-dashed border-gray-400">
+              <div className="flex items-center justify-between">
+                {/* Left: Cinema Ticket Text */}
+                <div className="flex items-center gap-4">
+                  <div className="text-center">
+                    <div className="flex items-center gap-1 mb-1">
+                      <span className="text-2xl">⭐</span>
+                      <span className="text-2xl">⭐</span>
+                      <span className="text-2xl">⭐</span>
                     </div>
-                    <p className="text-sm font-semibold tracking-wider text-gray-600">ADMIT ONE</p>
+                    <h3 className="text-2xl font-bold tracking-widest text-gray-800">CINEMA</h3>
+                    <p className="text-lg font-bold tracking-widest text-gray-700">TICKET</p>
                   </div>
                   
-                  {/* Film Strip Design */}
-                  <div className="text-right">
+                  {/* Barcode */}
+                  <div className="ml-4">
+                    <svg width="120" height="60" viewBox="0 0 120 60">
+                      {Array.from({ length: 30 }).map((_, i) => (
+                        <rect
+                          key={i}
+                          x={i * 4}
+                          y="10"
+                          width={Math.random() > 0.5 ? 3 : 2}
+                          height="40"
+                          fill="black"
+                        />
+                      ))}
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Right: Film Strip & Cinema Ticket */}
+                <div className="text-right">
+                  <div className="flex items-center gap-3 mb-2">
+                    {/* Film Strip */}
                     <div className="relative">
-                      {/* Film Strip */}
-                      <div className="w-16 h-12 bg-gray-800 rounded-sm relative overflow-hidden">
-                        {/* Film holes */}
-                        <div className="absolute left-1 top-1 w-2 h-2 bg-white rounded-full"></div>
-                        <div className="absolute left-1 bottom-1 w-2 h-2 bg-white rounded-full"></div>
-                        <div className="absolute right-1 top-1 w-2 h-2 bg-white rounded-full"></div>
-                        <div className="absolute right-1 bottom-1 w-2 h-2 bg-white rounded-full"></div>
-                        {/* Film frames */}
-                        <div className="absolute inset-2 border border-white opacity-50"></div>
-                        <div className="absolute left-1/2 top-2 bottom-2 w-px bg-white opacity-30"></div>
-                      </div>
-                      {/* Movie Camera */}
-                      <div className="mt-1 flex justify-center">
-                        <div className="w-8 h-6 bg-black rounded-sm relative">
-                          <div className="absolute -left-1 top-1/2 transform -translate-y-1/2 w-2 h-3 bg-black rounded-full"></div>
-                          <div className="absolute -right-1 top-1/2 transform -translate-y-1/2 w-1 h-1 bg-black rounded-full"></div>
-                        </div>
-                      </div>
+                      <svg width="100" height="60" viewBox="0 0 100 60">
+                        <rect x="0" y="0" width="100" height="60" fill="#333" rx="3"/>
+                        <circle cx="10" cy="10" r="3" fill="white"/>
+                        <circle cx="10" cy="50" r="3" fill="white"/>
+                        <circle cx="90" cy="10" r="3" fill="white"/>
+                        <circle cx="90" cy="50" r="3" fill="white"/>
+                        <rect x="20" y="10" width="20" height="40" fill="white" opacity="0.3"/>
+                        <rect x="45" y="10" width="20" height="40" fill="white" opacity="0.3"/>
+                        <rect x="70" y="10" width="10" height="40" fill="white" opacity="0.3"/>
+                      </svg>
+                    </div>
+                    
+                    {/* Movie Camera */}
+                    <div>
+                      <svg width="60" height="50" viewBox="0 0 60 50">
+                        <rect x="10" y="15" width="30" height="20" fill="#333" rx="2"/>
+                        <circle cx="25" cy="25" r="8" fill="#555"/>
+                        <circle cx="25" cy="25" r="5" fill="#777"/>
+                        <circle cx="45" cy="15" r="8" fill="#333"/>
+                        <circle cx="45" cy="15" r="5" fill="#555"/>
+                        <circle cx="50" cy="35" r="6" fill="#333"/>
+                        <circle cx="50" cy="35" r="4" fill="#555"/>
+                      </svg>
                     </div>
                   </div>
-                </div>
-
-                {/* Movie Details */}
-                <div className="space-y-3 pr-6">
-                  <div className="border-b border-gray-300 pb-2">
-                    <h4 className="text-lg font-bold text-black uppercase tracking-wide">{bookingDetails.movieName}</h4>
-                    <p className="text-gray-600 text-sm font-medium">{bookingDetails.theaterName}</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-500 uppercase text-xs font-semibold tracking-wide">DATE</p>
-                      <p className="font-bold text-black">{bookingDetails.showDate}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 uppercase text-xs font-semibold tracking-wide">TIME</p>
-                      <p className="font-bold text-black">{bookingDetails.showTime}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 uppercase text-xs font-semibold tracking-wide">SEATS</p>
-                      <p className="font-bold text-black">{bookingDetails.selectedSeats.join(', ')}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-500 uppercase text-xs font-semibold tracking-wide">PRICE</p>
-                      <p className="font-bold text-black text-lg">₹{bookingDetails.totalPrice}</p>
-                    </div>
-                  </div>
-
-                  <div className="border-t border-gray-300 pt-3 flex justify-between items-center">
-                    <div>
-                      <p className="text-xs text-gray-500 uppercase font-semibold tracking-wide">STATUS</p>
-                      <p className="font-bold text-green-600">{bookingDetails.status.toUpperCase()}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-500 uppercase font-semibold tracking-wide">TICKET ID</p>
-                      <p className="font-mono text-xs text-black">{bookingDetails.bookingId.slice(-8)}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Barcode Section */}
-              <div className="bg-white text-black p-4 w-20 flex flex-col items-center justify-between border-l-2 border-dashed border-gray-400">
-                {/* Barcode */}
-                <div className="transform rotate-90 flex-1 flex items-center">
-                  <div className="flex gap-px">
-                    {Array.from({ length: 30 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="bg-black"
-                        style={{
-                          width: Math.random() > 0.5 ? '2px' : '1px',
-                          height: '45px'
-                        }}
-                      ></div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Ticket Number */}
-                <div className="text-center">
-                  <p className="text-xs font-mono text-black transform -rotate-90 whitespace-nowrap">
-                    {bookingDetails.bookingId.slice(-6)}
-                  </p>
+                  <h3 className="text-xl font-bold tracking-widest text-gray-800">CINEMA TICKET</h3>
+                  <p className="text-xs tracking-wider text-gray-600">ADMIT ONE</p>
                 </div>
               </div>
             </div>
-            
-            {/* Footer */}
-            <div className="bg-gray-100 px-6 py-2 border-t border-gray-300">
-              <div className="flex justify-between items-center text-xs text-gray-600">
-                <span className="font-semibold">🎬 CINEBOOK THEATERS</span>
-                <span>Present this ticket at entrance</span>
-                <span className="font-mono">{new Date().toLocaleDateString()}</span>
+
+            {/* Bottom Section - Dark Header */}
+            <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🎬</span>
+                  <span className="text-white font-bold tracking-wider text-lg">MR. CINEBOOK</span>
+                </div>
+                <h2 className="text-white font-bold tracking-widest text-2xl">MOVIE TICKET</h2>
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="bg-white p-6">
+              <div className="flex gap-6">
+                {/* Left Side - Icons */}
+                <div className="flex flex-col items-center justify-center gap-4 border-r-2 border-dashed border-gray-300 pr-6">
+                  {/* Seat Icon */}
+                  <div className="text-center">
+                    <svg width="50" height="50" viewBox="0 0 50 50" className="mx-auto mb-1">
+                      <rect x="10" y="20" width="30" height="20" fill="#333" rx="3"/>
+                      <rect x="8" y="18" width="5" height="25" fill="#333" rx="2"/>
+                      <rect x="37" y="18" width="5" height="25" fill="#333" rx="2"/>
+                      <rect x="15" y="15" width="20" height="8" fill="#555" rx="4"/>
+                    </svg>
+                    <p className="text-xs font-bold text-gray-700">AUDITORIUM</p>
+                    <p className="text-lg font-bold text-gray-900">SEAT: {bookingDetails.selectedSeats.join(', ')}</p>
+                  </div>
+
+                  {/* Date/Time */}
+                  <div className="text-center text-xs text-gray-600">
+                    <p className="font-semibold">DATE: {bookingDetails.showDate}</p>
+                    <p className="font-semibold">TIME: {bookingDetails.showTime}</p>
+                  </div>
+                </div>
+
+                {/* Right Side - Details */}
+                <div className="flex-1">
+                  <div className="mb-4">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-1 tracking-wide uppercase">
+                      {bookingDetails.movieName}
+                    </h3>
+                    <p className="text-sm text-gray-600 font-semibold">
+                      {bookingDetails.theaterName}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                    <div>
+                      <p className="text-gray-500 font-semibold">THEATER:</p>
+                      <p className="font-bold text-gray-900">{bookingDetails.theaterName}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 font-semibold">DATE:</p>
+                      <p className="font-bold text-gray-900">{bookingDetails.showDate}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 font-semibold">TIME:</p>
+                      <p className="font-bold text-gray-900">{bookingDetails.showTime}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-500 font-semibold">PRICE:</p>
+                      <p className="font-bold text-gray-900 text-2xl">₹{bookingDetails.totalPrice}</p>
+                    </div>
+                  </div>
+
+                  {/* Bottom Info */}
+                  <div className="flex items-center justify-between pt-4 border-t-2 border-gray-200">
+                    <div className="flex items-center gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500 font-semibold">TICKET ID</p>
+                        <p className="font-mono text-sm font-bold text-gray-900">
+                          {bookingDetails.bookingId.slice(-8).toUpperCase()}
+                        </p>
+                      </div>
+                      <div className="h-8 w-px bg-gray-300"></div>
+                      <div>
+                        <p className="text-xs text-green-600 font-bold">✓ PAID VIA</p>
+                        <p className="font-bold text-green-600 text-sm">CINEPAY</p>
+                      </div>
+                    </div>
+                    
+                    {/* Movie Camera Icon */}
+                    <div>
+                      <svg width="80" height="60" viewBox="0 0 80 60">
+                        <rect x="15" y="20" width="35" height="25" fill="#333" rx="3"/>
+                        <circle cx="32" cy="32" r="10" fill="#555"/>
+                        <circle cx="32" cy="32" r="6" fill="#777"/>
+                        <circle cx="55" cy="20" r="10" fill="#333"/>
+                        <circle cx="55" cy="20" r="6" fill="#555"/>
+                        <circle cx="62" cy="42" r="8" fill="#333"/>
+                        <circle cx="62" cy="42" r="5" fill="#555"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center print:hidden">
           <button
             onClick={downloadTicket}
             className="flex items-center justify-center gap-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg"
@@ -407,7 +318,7 @@ const BookingSuccess = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @media print {
           body * {
             visibility: hidden;
@@ -420,26 +331,9 @@ const BookingSuccess = () => {
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            background: white !important;
-            color: black !important;
           }
-          .bg-white {
-            background-color: white !important;
-          }
-          .bg-gray-100 {
-            background-color: #f3f4f6 !important;
-          }
-          .bg-black {
-            background-color: black !important;
-          }
-          .text-black {
-            color: black !important;
-          }
-          .border-gray-300 {
-            border-color: #d1d5db !important;
-          }
-          .border-gray-400 {
-            border-color: #9ca3af !important;
+          .print\\:hidden {
+            display: none !important;
           }
         }
       `}</style>

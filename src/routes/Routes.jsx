@@ -15,6 +15,8 @@ import ErrorPage from "../pages/shared/Error";
 import SeatSelection from "../pages/user/SeatSelection";
 import VerifyOtp from "../pages/shared/Verification";
 import Payment from "../pages/user/Payment";
+import PaymentGatewaySelection from "../pages/user/PaymentGatewaySelection";
+import CinePayPayment from "../pages/user/CinePayPayment";
 import Bookings from "../pages/user/Bookings";
 import TheaterOwnerLayout from "../layouts/TheaterOwnerLayout";
 import OwnerDashboard from "../pages/owner/OwnerDashboard";
@@ -104,6 +106,14 @@ export const router = createBrowserRouter([
           {
             path: "booking-success",
             element: <BookingSuccess />,
+          },
+          {
+            path: "payment-gateway/:showId",
+            element: <PaymentGatewaySelection />,
+          },
+          {
+            path: "cinepay-payment/:showId",
+            element: <CinePayPayment />,
           },
           {
             path: "payment/:showId",

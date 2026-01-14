@@ -59,25 +59,30 @@ const Payment = () => {
     }
   }, [selectedSeats, totalPrice, bookingId, navigate, showId, isUserAuth, user]);
 
-  // Load Razorpay script dynamically (only if not in mock mode)
+  // Load Razorpay script dynamically
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
-      // Always skip loading Razorpay script in development mode
+      // Check if we should skip loading (only if explicitly in mock mode)
       const isDevMode = import.meta.env.VITE_SKIP_RAZORPAY === 'true' || 
                         import.meta.env.VITE_FORCE_MOCK_PAYMENT === 'true' ||
-                        import.meta.env.VITE_RAZORPAY_KEY_ID === 'DISABLED_IN_DEV' ||
-                        import.meta.env.VITE_RAZORPAY_KEY_ID === 'MOCK_DEV_KEY';
+                        import.meta.env.VITE_SKIP_PAYMENT === 'true';
       
       if (isDevMode) {
-        console.log('🚫 Razorpay script loading blocked in development mode');
+        console.log('🚫 Razorpay script loading blocked - mock mode enabled');
         resolve(false);
         return;
       }
       
       const script = document.createElement("script");
       script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
+      script.onload = () => {
+        console.log('✅ Razorpay SDK loaded successfully');
+        resolve(true);
+      };
+      script.onerror = () => {
+        console.error('❌ Failed to load Razorpay SDK');
+        resolve(false);
+      };
       document.body.appendChild(script);
     });
   };
@@ -86,11 +91,10 @@ const Payment = () => {
   const handlePayment = async () => {
     setLoading(true);
 
-    // Force mock mode in development - check multiple environment variables
+    // Check if we should use mock mode (only if explicitly enabled)
     const isDevMode = import.meta.env.VITE_SKIP_RAZORPAY === 'true' || 
                       import.meta.env.VITE_FORCE_MOCK_PAYMENT === 'true' ||
-                      import.meta.env.VITE_RAZORPAY_KEY_ID === 'DISABLED_IN_DEV' ||
-                      import.meta.env.VITE_RAZORPAY_KEY_ID === 'MOCK_DEV_KEY';
+                      import.meta.env.VITE_SKIP_PAYMENT === 'true';
     
     if (isDevMode) {
       console.log('🚀 Development mode detected - using mock payment flow');
@@ -137,8 +141,8 @@ const Payment = () => {
       }
     }
 
-    // Real Razorpay flow (only for production)
-    console.log('🔄 Production mode - using real Razorpay');
+    // Real Razorpay flow
+    console.log('💳 Real payment mode - using Razorpay');
     try {
       const response = await axiosInstance.post("/payment/createOrder", {
         amount: totalPrice,
@@ -175,7 +179,7 @@ const Payment = () => {
         return;
       }
 
-      // Real Razorpay flow (only if keys are valid and not in dev mode)
+      // Real Razorpay flow - Load SDK
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
         toast.error("Failed to load Razorpay SDK. Check your network.");
@@ -209,9 +213,9 @@ const Payment = () => {
           }
         },
         prefill: {
-          name: "Test User",
-          email: "test@example.com",
-          contact: "9999999999",
+          name: user?.name || "User",
+          email: user?.email || "user@example.com",
+          contact: user?.phone || "9999999999",
         },
         theme: { color: "#fd5479" },
       };
@@ -223,9 +227,9 @@ const Payment = () => {
         setLoading(false);
       });
       paymentObject.open();
+      setLoading(false);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to initiate payment.");
-      navigate("/user/payment-failed");
       setLoading(false);
     }
   };
@@ -242,12 +246,7 @@ const Payment = () => {
       <div className="bg-base-300 p-8 rounded-xl shadow-lg w-full max-w-lg">
         {/* Header */}
         <h1 className="text-3xl font-bold base mb-6 text-center text-primary">
-          Summary
-          {import.meta.env.VITE_SKIP_RAZORPAY === 'true' && (
-            <div className="text-sm text-yellow-500 font-normal mt-1">
-              🚀 Development Mode - Mock Payments
-            </div>
-          )}
+          Payment Summary
         </h1>
 
         {/* Movie Poster and Title */}
@@ -310,11 +309,7 @@ const Payment = () => {
 
         {/* Payment Button */}
         <Button
-          title={
-            import.meta.env.VITE_SKIP_RAZORPAY === 'true' 
-              ? `Mock Pay ₹${totalPrice} (Dev Mode)` 
-              : `Proceed to Pay ₹${totalPrice}`
-          }
+          title={`Proceed to Pay ₹${totalPrice}`}
           onClick={handlePayment}
           loading={loading}
           disabled={loading}
